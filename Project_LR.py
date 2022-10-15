@@ -71,7 +71,6 @@ print(score)
 predictions = logisticRegr.predict_proba(test_images)
 print(predictions)
 # print(metrics.confusion_matrix(test_Y, predictions))
-print('Done Testing!')
 
 # %% [code]
 import matplotlib.pyplot as plt
@@ -87,4 +86,3 @@ predictions = logisticRegr.predict_proba(test_images)
 fpr, tpr, thresholds = roc_curve(test_Y, predictions[:,1])
 plt.plot(fpr, tpr)
 plt.show()
-print('done')

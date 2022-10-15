@@ -95,7 +95,6 @@ from sklearn.svm import SVC
 
 clf = SVC(kernel = 'linear', gamma = 0.00000001, C = 100, verbose = True)
 clf.fit(train_images, train_Y)
-print ('ok')
 print (clf.score(train_images, train_Y))
 print (clf.score(test_images, test_Y))
 
@@ -121,7 +120,6 @@ from sklearn.svm import SVC
 
 clf = SVC(kernel = 'linear', gamma = 0.00000001, C = 100, verbose = True)
 clf.fit(train_images, train_Y)
-print ('ok')
 print (clf.score(train_images, train_Y))
 print (clf.score(test_images, test_Y))
 
