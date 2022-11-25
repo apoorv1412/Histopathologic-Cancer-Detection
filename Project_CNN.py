@@ -20,8 +20,6 @@ from sklearn.metrics import roc_curve
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(device)
 
-# f = pd.DataFrame({'path': glob(os.path.join('../input/train', '*.tif'))})
-n_X, test_X, train_Y, test_Y = train_test_split(train_X, train_Y, test_size=2000,shuffle = True)#, random_state=42)
 xx = 3
 yy = 0
 df = pd.DataFrame({'path': glob(os.path.join('../input/train', '*.tif'))})
@@ -49,61 +47,17 @@ train_X = input_images
 train_X, test_X, train_Y, test_Y = train_test_split(train_X, train_Y, test_size=2000, shuffle = True)
 print(train_Y.shape)
 print(train_X.shape)
+
 train_X = np.einsum('abcd->adbc', train_X)
 test_X = np.einsum('abcd->adbc', test_X)
 print(train_X.shape)
+
 train_X = train_X[:,:,32:64,32:64]
 test_X = test_X[:,:,32:64,32:64]
-# image = (df['image'][500], df['label'][500])
-# plt.imshow(image[0])
-# plt.title(image[1])
-# plt.show()
 plt.imshow(train_X[500][0], interpolation='nearest')
 plt.show()
-print(train_Y)
 print(train_X.shape)
 print(train_Y.shape)
-
-
-# b = train_X[:,32:65,32:65,2]
-# from sklearn.svm import SVC
-
-# train_images=[]
-# for i in range(len(train_X)):
-#     a = b[i]
-#     c = a.flatten()
-#     train_images.append(c)
-# train_images = np.array(train_images)
-# print(train_images.shape)
-# # for i in range(len(test_X)):
-# #     a = b_[i]
-# #     c = a.flatten()
-# #     test_images.append(c)
-# # test_images = np.array(test_images)
-
-# train_Y = np.reshape(train_Y, (len(train_Y,)))
-# # test_Y = np.reshape(test_Y, (len(test_Y,)))
-
-# clf = SVC(kernel = 'rbf')
-# clf.fit(train_images, train_Y)
-# print ('ok')
-# print (clf.score(train_images, train_Y))
-'''
-Merge the three RGB channels into one (code fails)
-'''
-# b=train_X[:,0,:,:]
-# g=train_X[:,1,:,:]
-# r=train_X[:,2,:,:]
-# print(b.shape)
-# train_X_merge=np.dstack((b,g,r))
-# print(train_X_merge.shape)
-# plt.imshow(train_X_merge[0], interpolation='nearest')
-# plt.show()
-# plt.imshow(train_X[0][2], interpolation='nearest')
-# plt.show()
-print(train_X.shape)
-print(test_X.shape)
-
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -138,21 +92,8 @@ import torchvision.models as models
 resnet = models.resnet50(pretrained=True)
 alexnet = models.alexnet(pretrained=True)
 
-net.to(device)
-alexnet.to(device)
-resnet.to(device)
-
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.9)
-
-# conv = nn.Sequential(*list(alexnet.children())[:-1])
-
-'''
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-IF THE FIRST LINE IS UNCOMMENTED AND YOU GET AN ERROR, COMMENT IT
-AND VICE VERSA
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-'''
 
 train_Y = torch.from_numpy(train_Y)
 for epoch in range(25): 
@@ -172,7 +113,6 @@ for epoch in range(25):
         optimizer.zero_grad()
         # forward + backward + optimize
         a = np.reshape(train_X[i], (1,3,32,32))
-#         print(a)
         a = torch.from_numpy(a).to(device)
         outputs = net(a.float())
         loss = criterion(outputs, train_Y[i].to(device))
@@ -180,19 +120,12 @@ for epoch in range(25):
         optimizer.step()
         # print statistics
         running_loss += loss.item()
-#         if i % 100 == 9:    # print every 2000 mini-batches
-#             print('[%d, %5d] loss: %.3f' %
-#                   (epoch + 1, i + 1, running_loss))
-#             running_loss = 0.0
     print(running_loss)
 
 print('Finished Training')
 
 
 net = net.float()
-alexnet = alexnet.float()
-resnet = resnet.float()
-
 
 correct = 0
 total = 0
@@ -209,7 +142,6 @@ with torch.no_grad():
 
         probs = F.softmax(outputs, dim=1)
         probs = probs.cpu().numpy()
-        #print(probs[0][1])
         max_prob.append(float(probs[0][1]))
         _, predicted = torch.max(outputs.data, 1)
 
@@ -227,7 +159,6 @@ for i in range(len(train_Y)):
 max_prob = np.array(max_prob)
 fpr, tpr, thresholds = roc_curve(y_true, max_prob)
 plt.plot(fpr, tpr)
-# plt.title("ROC Curve: Training Set")
 plt.xlabel("False Positive Rate")
 plt.ylabel("True Positive Rate")
 plt.savefig("p1.png")
